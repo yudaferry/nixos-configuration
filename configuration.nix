@@ -114,6 +114,8 @@ in
     gcc
     tree-sitter
     wl-clipboard
+    rclone
+    lm_sensors
   ];
 
 
@@ -135,6 +137,9 @@ in
       theme = "robbyrussell";
       plugins = [ "git" "sudo" ];
     };
+    interactiveShellInit = ''
+      export PATH="$HOME/.local/bin:$PATH"
+    '';
   };
 
   # Some programs need SUID wrappers, can be configured further or are
