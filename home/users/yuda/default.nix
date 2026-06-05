@@ -10,6 +10,7 @@
 
     home.packages = with pkgs; [
       gnomeExtensions.vitals
+      gnomeExtensions.bluetooth-battery-meter
       uv
       python3
     ];
@@ -20,9 +21,10 @@
 
     dconf.settings = {
       "org/gnome/shell" = {
-        enabled-extensions = [ "Vitals@CoreCoding.com" ];
+        enabled-extensions = [ "Vitals@CoreCoding.com" "bluetooth-battery-meter@maniacx.github.com" ];
       };
-      "org/gnome/shell/extensions/vitals" = {
+
+"org/gnome/shell/extensions/vitals" = {
         show-cpu = true;
         show-memory = true;
         show-temperature = true;
