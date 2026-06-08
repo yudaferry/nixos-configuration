@@ -38,7 +38,7 @@
       };
     };
 
-    systemd.user.services.rclone-gdrive = {
+systemd.user.services.rclone-gdrive = {
       Unit = {
         Description = "rclone Google Drive mount";
         After = [ "network-online.target" ];

@@ -17,7 +17,6 @@ in
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
       "${home-manager}/nixos"
-      ./home/users/yuda
     ];
 
   # Bootloader.
@@ -91,6 +90,7 @@ in
         }
       ];
     };
+
   };
 
   # Fix: combo 3.5mm jack (mic-only plug) triggers auto-mute and silences speakers.
@@ -128,6 +128,9 @@ in
   # Install firefox.
   programs.firefox.enable = true;
   programs.steam.enable = true;
+
+  # Enable flakes and nix-command
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -170,7 +173,7 @@ vim # Do not forget to add an editor to edit configuration.nix! The Nano editor 
     unzip
     curl
     cloudflare-warp
-    bun
+    unstable.bun
     jq
     sweethome3d.application
     p7zip
@@ -248,6 +251,75 @@ vim # Do not forget to add an editor to edit configuration.nix! The Nano editor 
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   boot.kernel.sysctl."vm.swappiness" = 10;
+
+  home-manager.users.yuda = { lib, ... }: {
+    home.stateVersion = "25.11";
+
+    imports = [
+      ./home/shared/tmux.nix
+      ./home/shared/nvim/nvim.nix
+    ];
+
+    home.packages = with pkgs; [
+      gnomeExtensions.vitals
+      gnomeExtensions.bluetooth-battery-meter
+      uv
+      python3
+    ];
+
+    home.activation.installGraphify = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      ${pkgs.uv}/bin/uv tool install graphifyy --quiet --python ${pkgs.python3}/bin/python3
+    '';
+
+    dconf.settings = {
+      "org/gnome/shell" = {
+        enabled-extensions = [ "Vitals@CoreCoding.com" "bluetooth-battery-meter@maniacx.github.com" ];
+      };
+
+      "org/gnome/shell/extensions/vitals" = {
+        show-cpu = true;
+        show-memory = true;
+        show-temperature = true;
+        show-voltage = false;
+        show-fan = false;
+        show-network = false;
+        show-storage = false;
+        show-battery = false;
+        show-system = false;
+        hot-sensors = [ "_processor_usage_" "_memory_usage_" "_temperature_average_" ];
+      };
+
+      "org/gnome/settings-daemon/plugins/media-keys" = {
+        screenshot = [ "" ];
+        custom-keybindings = [ "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/" ];
+      };
+
+      "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = {
+        name = "Flameshot";
+        command = "env QT_QPA_PLATFORM=xcb flameshot";
+        binding = "Print";
+      };
+    };
+
+    systemd.user.services.rclone-gdrive = {
+      Unit = {
+        Description = "rclone Google Drive mount";
+        After = [ "network-online.target" ];
+        Wants = [ "network-online.target" ];
+      };
+      Service = {
+        Type = "notify";
+        ExecStartPre = "/run/current-system/sw/bin/mkdir -p %h/GoogleDrive";
+        ExecStart = "${pkgs.rclone}/bin/rclone mount gdrive: %h/GoogleDrive --vfs-cache-mode writes --vfs-cache-max-size 512M";
+        ExecStop = "/run/wrappers/bin/fusermount -u %h/GoogleDrive";
+        Restart = "on-failure";
+        RestartSec = "10s";
+      };
+      Install = {
+        WantedBy = [ "default.target" ];
+      };
+    };
+  };
 
   system.stateVersion = "25.11"; # Did you read the comment?
 
