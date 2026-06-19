@@ -126,8 +126,6 @@ in
   };
 
   # Install firefox.
-  programs.firefox.enable = true;
-  programs.steam.enable = true;
 
   # Enable flakes and nix-command
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -178,6 +176,8 @@ vim # Do not forget to add an editor to edit configuration.nix! The Nano editor 
     sweethome3d.application
     p7zip
     baobab
+    openttd
+    zeroad
   ];
 
 
@@ -231,6 +231,11 @@ vim # Do not forget to add an editor to edit configuration.nix! The Nano editor 
   services.cloudflare-warp.enable = true;
   virtualisation.docker.enable = true;
 
+  # GNOME Remote Desktop (RDP). Configured via `grdctl` because the
+  # GNOME Settings panel is broken upstream on GNOME 47+
+  # (NixOS issue #361163).
+  services.gnome.gnome-remote-desktop.enable = true;
+
   system.activationScripts.binbash = lib.stringAfter [ "binsh" ] ''
     ln -sf ${pkgs.bash}/bin/bash /bin/bash
   '';
@@ -243,6 +248,10 @@ vim # Do not forget to add an editor to edit configuration.nix! The Nano editor 
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
+
+  # Trust Tailscale interface so RDP (3389) and other services are reachable
+  # from your tailnet without exposing them on Wi-Fi / LAN.
+  networking.firewall.trustedInterfaces = [ "tailscale0" ];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
@@ -258,6 +267,7 @@ vim # Do not forget to add an editor to edit configuration.nix! The Nano editor 
     imports = [
       ./home/shared/tmux.nix
       ./home/shared/nvim/nvim.nix
+      ./home/shared/lazygit.nix
     ];
 
     home.packages = with pkgs; [
