@@ -145,7 +145,6 @@ vim # Do not forget to add an editor to edit configuration.nix! The Nano editor 
     vscode
     unstable.zed-editor
     htop
-    claude-code
     (pkgs.writeShellScriptBin "flameshot" ''
       tmpfile=$(mktemp /tmp/flameshot-XXXXXX.png)
       ${pkgs.flameshot}/bin/flameshot gui --raw > "$tmpfile"
@@ -159,7 +158,6 @@ vim # Do not forget to add an editor to edit configuration.nix! The Nano editor 
     tailscale
     oh-my-zsh
     unstable.ollama-vulkan
-    opencode
     git
     lazydocker
     lazygit
@@ -268,6 +266,7 @@ vim # Do not forget to add an editor to edit configuration.nix! The Nano editor 
       ./home/shared/tmux.nix
       ./home/shared/nvim/nvim.nix
       ./home/shared/lazygit.nix
+      ./home/shared/scripts.nix
     ];
 
     home.packages = with pkgs; [
